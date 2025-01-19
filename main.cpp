@@ -30,7 +30,7 @@ typedef struct {
 
 //Global Variables
 double upBorder = 0.9, leftBorder = -0.45, downBorder = -0.9 + SQUARE_SIDE * MULTIPLIER, rightBorder = 0.45 - SQUARE_SIDE * MULTIPLIER;
-bool grid[20][10], up, down = true, left, right, canDouble;
+bool grid[20][10], up, down = true, left, right, canDouble, canRight, canLeft;
 list<object> objects;
 object currenObject;
 
@@ -50,6 +50,95 @@ void findGridPosition(square s, int* gridX, int* gridY)
     double posY = s.x - leftBorder, posX = -s.y + upBorder;
     *gridY = round(posY / (SQUARE_SIDE * MULTIPLIER));
     *gridX = round(posX / (SQUARE_SIDE * MULTIPLIER));
+}
+
+square* findSquare(int row, int column)
+{
+    for (object o : objects)
+    {
+        for (int i = 0; i < o.size; i++)
+        {
+            square s = o.squares[i];
+            if (s.isActive)
+            {
+                int gridX, gridY;
+                findGridPosition(s, &gridY, &gridX);
+                if (gridX == column && gridY == row)
+                {
+                    return &s;
+                }
+            }
+        }
+    }
+    return NULL;
+}
+
+bool gameOver()
+{
+    for (int i = 0; i < 10; i++)
+    {
+        bool gameOver = true;
+        for (int j = 0; j < 20; j++)
+        {
+            if (!grid[j][i])
+            {
+                gameOver = false;
+                break;
+            }
+        }
+        if (gameOver)
+            return true;
+    }
+    return false;
+}
+
+void destroyRow(int row)
+{
+    for (int i = 0; i < 10; i++)
+    {
+        square* s = findSquare(row, i);
+
+        if (s != NULL)
+        {
+            s->isActive = false;
+            s->isPlaced = false;
+            grid[row][i] = false;
+        }
+    }
+    for (int i = row - 1; i >= 0; i--)
+    {
+        for (int j = 0; j < 10; j++)
+        {
+            square* s = findSquare(i, j);
+
+            if (s != NULL)
+            {
+                grid[i][j] = false;
+                s->y -= SQUARE_SIDE * MULTIPLIER;
+                grid[i - 1][j] = true;
+            }
+        }
+    }
+}
+
+void checkRows()
+{
+    for (int i = 0; i < 20; i++)
+    {
+        bool isFull = true;
+        for (int j = 0; j < 10; j++)
+        {
+            if (!grid[i][j])
+            {
+                isFull = false;
+                break;
+            }
+        }
+        if (isFull)
+        {
+            destroyRow(i);
+        }
+    }
 }
 
 bool canMove(object o)
@@ -173,8 +262,8 @@ void displayObjects()
 
 void display()
 {
-    displayBoard();
     displayObjects();
+    displayBoard();
 }
 
 void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods)
@@ -258,7 +347,7 @@ int main(void)
     createObject();
 
     /* Loop until the user closes the window */
-    while (!glfwWindowShouldClose(window))
+    while (!glfwWindowShouldClose(window) && !gameOver())
     {
         /* Render here */
         glClear(GL_COLOR_BUFFER_BIT);
@@ -276,13 +365,15 @@ int main(void)
                 {
                     square* s = &(currenObject.squares[i]);
 
-                    if (!s->isPlaced)
+                    if (s->isActive && !s->isPlaced)
                     {
                         if (s->isBottom)
                         {
                             int gridX, gridY;
                             findGridPosition(currenObject.squares[i], &gridY, &gridX);
                             canDouble = gridY < 18 && canDouble ? true : false;
+                            canRight = grid[gridY][gridX + 1] ? false : true;
+                            canLeft = grid[gridY][gridX - 1] ? false : true;
 
                             if (gridY < 19)
                             {
@@ -296,12 +387,12 @@ int main(void)
                                     s->y -= SQUARE_SIDE * MULTIPLIER;
                                 }
 
-                                if (right && gridX < 10)
+                                if (right && s->x < rightBorder && canRight)
                                 {
                                     s->x += SQUARE_SIDE * MULTIPLIER;
                                 }
 
-                                else if (left && gridX > 0)
+                                else if (left && s->x > leftBorder && canLeft)
                                 {
                                     s->x -= SQUARE_SIDE * MULTIPLIER;
                                 }
@@ -313,8 +404,6 @@ int main(void)
                             int gridX, gridY;
                             findGridPosition(currenObject.squares[i], &gridY, &gridX);
 
-                            //if (!currenObject.squares[i - 1].isPlaced && !grid[gridY + 1][gridX])
-
                             if (down && canDouble)
                             {
                                 s->y -= SQUARE_SIDE * MULTIPLIER * 2;
@@ -325,12 +414,12 @@ int main(void)
                                 s->y -= SQUARE_SIDE * MULTIPLIER;
                             }
 
-                            if (right && s->x < rightBorder)
+                            if (right && s->x < rightBorder && canRight)
                             {
                                 s->x += SQUARE_SIDE * MULTIPLIER;
                             }
 
-                            else if (left && s->x > leftBorder)
+                            else if (left && s->x > leftBorder && canLeft)
                             {
                                 s->x -= SQUARE_SIDE * MULTIPLIER;
                             }
@@ -347,10 +436,11 @@ int main(void)
                     findGridPosition(currenObject.squares[i], &gridY, &gridX);
                     grid[gridY][gridX] = true;
                 }
-                displayGrid();
+                //displayGrid();
                 createObject();
             }
 
+            checkRows();
             lastUpdateTime = currentTime; // Reset the Timer
         }
 
