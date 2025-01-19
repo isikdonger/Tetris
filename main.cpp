@@ -30,7 +30,7 @@ typedef struct {
 
 //Global Variables
 double upBorder = 0.9, leftBorder = -0.45, downBorder = -0.9 + SQUARE_SIDE * MULTIPLIER, rightBorder = 0.45 - SQUARE_SIDE * MULTIPLIER;
-bool grid[20][10], up, down, left, right;
+bool grid[20][10], up, down = true, left, right, canDouble;
 list<object> objects;
 object currenObject;
 
@@ -67,6 +67,7 @@ bool canMove(object o)
             {
                 int gridX, gridY;
                 findGridPosition(o.squares[i], &gridY, &gridX);
+                canDouble = !grid[gridY + 2][gridX];
                 if (grid[gridY + 1][gridX])
                 {
                     return false;
@@ -281,10 +282,11 @@ int main(void)
                         {
                             int gridX, gridY;
                             findGridPosition(currenObject.squares[i], &gridY, &gridX);
+                            canDouble = gridY < 18 && canDouble ? true : false;
 
                             if (gridY < 19)
                             {
-                                if (down && gridY < 18)
+                                if (down && canDouble)
                                 {
                                     s->y -= SQUARE_SIDE * MULTIPLIER * 2;
                                 }
@@ -311,27 +313,26 @@ int main(void)
                             int gridX, gridY;
                             findGridPosition(currenObject.squares[i], &gridY, &gridX);
 
-                            if (!currenObject.squares[i - 1].isPlaced && !grid[gridY + 1][gridX])
+                            //if (!currenObject.squares[i - 1].isPlaced && !grid[gridY + 1][gridX])
+
+                            if (down && canDouble)
                             {
-                                if (down && !grid[gridY + 2][gridX])
-                                {
-                                    s->y -= SQUARE_SIDE * MULTIPLIER * 2;
-                                }
+                                s->y -= SQUARE_SIDE * MULTIPLIER * 2;
+                            }
 
-                                else
-                                {
-                                    s->y -= SQUARE_SIDE * MULTIPLIER;
-                                }
+                            else
+                            {
+                                s->y -= SQUARE_SIDE * MULTIPLIER;
+                            }
 
-                                if (right && s->x < rightBorder)
-                                {
-                                    s->x += SQUARE_SIDE * MULTIPLIER;
-                                }
+                            if (right && s->x < rightBorder)
+                            {
+                                s->x += SQUARE_SIDE * MULTIPLIER;
+                            }
 
-                                else if (left && s->x > leftBorder)
-                                {
-                                    s->x -= SQUARE_SIDE * MULTIPLIER;
-                                }
+                            else if (left && s->x > leftBorder)
+                            {
+                                s->x -= SQUARE_SIDE * MULTIPLIER;
                             }
                         }
                     }
