@@ -3,11 +3,14 @@
 #define WINDOW_HEIGHT 1000
 #define MULTIPLIER 0.002
 #define SQUARE_SIDE 45
+#define PI 3.14159265359
 
 #include <cstdlib>
 #include <ctime>
 #include <list>
 using namespace std;
+
+typedef struct object object;
 
 typedef struct {
     object* parent;
@@ -17,10 +20,10 @@ typedef struct {
     bool isBottom;
 }square;
 
-typedef struct {
+struct object {
     int size, r, g, b;
     square* squares;
-}object;
+};
 
 // Functions for creating specific Tetris shapes
 object createLineObject(double startX, double startY, int r, int g, int b) {

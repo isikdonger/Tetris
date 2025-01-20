@@ -17,6 +17,8 @@ bool grid[20][10], up, down, left, right, canDouble;
 list<object> objects;
 object currenObject;
 
+void findGridPosition(square, int*, int*);
+
 void initGrid()
 {
     for (int i = 0; i < 20; i++)
@@ -50,6 +52,83 @@ bool isActive(object o)
         }
     }
     return true;
+}
+
+void findMiddle(object o, double* x, double* y)
+{
+    double minX = o.squares[0].x, maxX = o.squares[0].x, minY = o.squares[0].y, maxY = o.squares[0].y;
+
+    for (int i = 1; i < o.size; i++)
+    {
+        square s = o.squares[i];
+
+        if (s.isActive)
+        {
+            if (s.x < minX)
+            {
+                minX = s.x;
+            }
+
+            if (s.x > maxX)
+            {
+                maxX = s.x;
+            }
+
+            if (s.y < minY)
+            {
+                minY = s.y;
+            }
+
+            if (s.y > maxY)
+            {
+                maxY = s.y;
+            }
+        }
+    }
+
+    *x = (minX + maxX) / 2;
+    *y = (minY + maxY) / 2;
+}
+
+bool canRotate(object o) {
+    for (int i = 0; i < o.size; i++) {
+        int gridX, gridY;
+        findGridPosition(o.squares[i], &gridX, &gridY);
+
+        // Check boundaries
+        if (gridX < 0 || gridX >= 10 || gridY < 0 || gridY >= 20) {
+            return false;
+        }
+
+        // Check if grid is occupied
+        if (grid[gridY][gridX]) {
+            return false;
+        }
+    }
+    return true;
+}
+
+
+void rotateObject(object& o, double angleDegrees) {
+    double angleRadians = angleDegrees * PI / 180.0; // Convert degrees to radians
+
+    // Use the first square as the pivot point (you can change this if needed)
+    double pivotX, pivotY;
+
+    findMiddle(o, &pivotX, &pivotY);
+
+    for (int i = 0; i < o.size; i++) {
+        double x = o.squares[i].x;
+        double y = o.squares[i].y;
+
+        // Apply rotation formula
+        double newX = pivotX + (x - pivotX) * cos(angleRadians) - (y - pivotY) * sin(angleRadians);
+        double newY = pivotY + (x - pivotX) * sin(angleRadians) + (y - pivotY) * cos(angleRadians);
+
+        // Update square coordinates
+        o.squares[i].x = newX;
+        o.squares[i].y = newY;
+    }
 }
 
 void deleteObjects() {
@@ -164,7 +243,6 @@ void findBottom(object* o) {
         }
     }
 }
-
 
 void destroyRow(int row)
 {
@@ -517,6 +595,16 @@ int main(void)
                                 s->x -= SQUARE_SIDE * MULTIPLIER;
                             }
                         }
+                    }
+                }
+
+                if (up)
+                {
+                    rotateObject(currenObject, 90.0);
+
+                    if (!canRotate(currenObject))
+                    {
+                        rotateObject(currenObject, -90.0);
                     }
                 }
             }
