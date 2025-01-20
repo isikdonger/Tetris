@@ -12,7 +12,7 @@
 using namespace std;
 
 //Global Variables
-double upBorder = 0.9, leftBorder = -0.45, downBorder = -0.9 + SQUARE_SIDE * MULTIPLIER, rightBorder = 0.45 - SQUARE_SIDE * MULTIPLIER;
+double upBorder = 0.9, leftBorder = -0.45, downBorder = -0.9 + SQUARE_SIDE * MULTIPLIER, rightBorder = 0.45 - SQUARE_SIDE * MULTIPLIER, updateInterval = 0.3;
 bool grid[20][10], up, down, left, right, canDouble;
 list<object> objects;
 object currenObject;
@@ -429,7 +429,7 @@ int main(void)
         // Current Time
         double currentTime = glfwGetTime();
 
-        if (currentTime - lastUpdateTime >= UPDATE_INTERVAL)
+        if (currentTime - lastUpdateTime >= updateInterval)
         {
             if (canMove(currenObject))
             {
@@ -512,6 +512,7 @@ int main(void)
                 displayGrid();
                 checkRows();
                 currenObject = createRandomObject(objects, 0, upBorder);
+                updateInterval -= updateInterval > 0.15 ? 0.0001 : 0;
             }
 
             lastUpdateTime = currentTime; // Reset the Timer

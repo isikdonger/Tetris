@@ -3,7 +3,6 @@
 #define WINDOW_HEIGHT 1000
 #define MULTIPLIER 0.002
 #define SQUARE_SIDE 45
-#define UPDATE_INTERVAL 0.1
 
 #include <cstdlib>
 #include <ctime>
