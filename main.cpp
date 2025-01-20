@@ -129,22 +129,42 @@ void sortSquares(object* o)
     }
 }
 
-void findBottom(object* o)
-{
-    square* bottom = &o->squares[0];
-
-    for (int i = 1; i < o->size; i++)
-    {
-        square* s = &o->squares[i];
-
-        if (s->isActive && s->y < bottom->y)
-        {
-            bottom = s;
-        }
+void findBottom(object* o) {
+    // Reset all squares' isBottom flag
+    for (int i = 0; i < o->size; i++) {
+        o->squares[i].isBottom = false;
     }
 
-    bottom->isBottom = true;
+    // Determine isBottom for each square
+    for (int i = 0; i < o->size; i++) {
+        square* current = &o->squares[i];
+
+        if (!current->isActive) {
+            continue;
+        }
+
+        // Check if there's a square directly below in the same object
+        bool hasSquareBelow = false;
+        for (int j = 0; j < o->size; j++) {
+            square* other = &o->squares[j];
+
+            // Check if the other square is directly below
+            if (other->isActive &&
+                other->parent == current->parent && // Same parent object
+                fabs(current->x - other->x) < 1e-6 && // Same column
+                other->y < current->y) { // Below current square
+                hasSquareBelow = true;
+                break;
+            }
+        }
+
+        // If no square below, mark as isBottom
+        if (!hasSquareBelow) {
+            current->isBottom = true;
+        }
+    }
 }
+
 
 void destroyRow(int row)
 {

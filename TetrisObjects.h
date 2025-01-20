@@ -10,6 +10,7 @@
 using namespace std;
 
 typedef struct {
+    object* parent;
     double x, y;
     bool isActive;
     bool isPlaced;
@@ -27,7 +28,7 @@ object createLineObject(double startX, double startY, int r, int g, int b) {
     o.size = 4;
     o.squares = (square*)malloc(sizeof(square) * o.size);
     for (int i = 0; i < o.size; i++) {
-        o.squares[i] = { startX, startY - i * SQUARE_SIDE * MULTIPLIER, true, false, i == o.size - 1 };
+        o.squares[i] = { &o, startX, startY - i * SQUARE_SIDE * MULTIPLIER, true, false, i == o.size - 1 };
     }
     o.r = r;
     o.g = g;
@@ -39,10 +40,10 @@ object createSquareObject(double startX, double startY, int r, int g, int b) {
     object o;
     o.size = 4;
     o.squares = (square*)malloc(sizeof(square) * o.size);
-    o.squares[0] = { startX, startY, true, false, true };
-    o.squares[1] = { startX + SQUARE_SIDE * MULTIPLIER, startY, true, false, true };
-    o.squares[2] = { startX, startY - SQUARE_SIDE * MULTIPLIER, true, false, true };
-    o.squares[3] = { startX + SQUARE_SIDE * MULTIPLIER, startY - SQUARE_SIDE * MULTIPLIER, true, false, true };
+    o.squares[0] = { &o, startX, startY, true, false, false };
+    o.squares[1] = { &o, startX + SQUARE_SIDE * MULTIPLIER, startY, true, false, false };
+    o.squares[2] = { &o, startX, startY - SQUARE_SIDE * MULTIPLIER, true, false, true };
+    o.squares[3] = { &o, startX + SQUARE_SIDE * MULTIPLIER, startY - SQUARE_SIDE * MULTIPLIER, true, false, true };
     o.r = r;
     o.g = g;
     o.b = b;
@@ -53,10 +54,10 @@ object createTShapeObject(double startX, double startY, int r, int g, int b) {
     object o;
     o.size = 4;
     o.squares = (square*)malloc(sizeof(square) * o.size);
-    o.squares[0] = { startX, startY, true, false, true };
-    o.squares[1] = { startX - SQUARE_SIDE * MULTIPLIER, startY - SQUARE_SIDE * MULTIPLIER, true, false, true };
-    o.squares[2] = { startX, startY - SQUARE_SIDE * MULTIPLIER, true, false, true };
-    o.squares[3] = { startX + SQUARE_SIDE * MULTIPLIER, startY - SQUARE_SIDE * MULTIPLIER, true, false, true };
+    o.squares[0] = { &o, startX, startY, true, false, true };
+    o.squares[1] = { &o, startX - SQUARE_SIDE * MULTIPLIER, startY - SQUARE_SIDE * MULTIPLIER, true, false, true };
+    o.squares[2] = { &o, startX, startY - SQUARE_SIDE * MULTIPLIER, true, false, true };
+    o.squares[3] = { &o, startX + SQUARE_SIDE * MULTIPLIER, startY - SQUARE_SIDE * MULTIPLIER, true, false, true };
     o.r = r;
     o.g = g;
     o.b = b;
@@ -67,10 +68,10 @@ object createLShapeObject(double startX, double startY, int r, int g, int b) {
     object o;
     o.size = 4;
     o.squares = (square*)malloc(sizeof(square) * o.size);
-    o.squares[0] = { startX, startY, true, false, true };
-    o.squares[1] = { startX, startY - SQUARE_SIDE * MULTIPLIER, true, false, true };
-    o.squares[2] = { startX, startY - 2 * SQUARE_SIDE * MULTIPLIER, true, false, true };
-    o.squares[3] = { startX + SQUARE_SIDE * MULTIPLIER, startY - 2 * SQUARE_SIDE * MULTIPLIER, true, false, true };
+    o.squares[0] = { &o, startX, startY, true, false, true };
+    o.squares[1] = { &o, startX, startY - SQUARE_SIDE * MULTIPLIER, true, false, true };
+    o.squares[2] = { &o, startX, startY - 2 * SQUARE_SIDE * MULTIPLIER, true, false, true };
+    o.squares[3] = { &o, startX + SQUARE_SIDE * MULTIPLIER, startY - 2 * SQUARE_SIDE * MULTIPLIER, true, false, true };
     o.r = r;
     o.g = g;
     o.b = b;
@@ -81,10 +82,10 @@ object createZShapeObject(double startX, double startY, int r, int g, int b) {
     object o;
     o.size = 4;
     o.squares = (square*)malloc(sizeof(square) * o.size);
-    o.squares[0] = { startX, startY, true, false, true };
-    o.squares[1] = { startX - SQUARE_SIDE * MULTIPLIER, startY - SQUARE_SIDE * MULTIPLIER, true, false, true };
-    o.squares[2] = { startX, startY - SQUARE_SIDE * MULTIPLIER, true, false, false };
-    o.squares[3] = { startX + SQUARE_SIDE * MULTIPLIER, startY, true, false, true };
+    o.squares[0] = { &o, startX, startY, true, false, true };
+    o.squares[1] = { &o, startX - SQUARE_SIDE * MULTIPLIER, startY - SQUARE_SIDE * MULTIPLIER, true, false, true };
+    o.squares[2] = { &o, startX, startY - SQUARE_SIDE * MULTIPLIER, true, false, false };
+    o.squares[3] = { &o, startX + SQUARE_SIDE * MULTIPLIER, startY, true, false, true };
     o.r = r;
     o.g = g;
     o.b = b;
