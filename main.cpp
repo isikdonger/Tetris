@@ -54,41 +54,45 @@ bool isActive(object o)
     return false;
 }
 
-void findMiddle(object o, double* x, double* y)
-{
-    double minX = o.squares[0].x, maxX = o.squares[0].x, minY = o.squares[0].y, maxY = o.squares[0].y;
-
-    for (int i = 1; i < o.size; i++)
+void findPivot(object o, double* pivotX, double* pivotY) {
+    if (o.pivotSquare != NULL)
     {
-        square s = o.squares[i];
+        switch (o.shape) {
+        case LINE_SHAPE:
+            // Pivot is the second block
+            *pivotX = o.pivotSquare->x;
+            *pivotY = o.pivotSquare->y;
+            break;
 
-        if (s.isActive)
-        {
-            if (s.x < minX)
-            {
-                minX = s.x;
-            }
+        case SQUARE_SHAPE:
+            // Center of the square
+            *pivotX = o.pivotSquare->x;
+            *pivotY = o.pivotSquare->y;
+            break;
 
-            if (s.x > maxX)
-            {
-                maxX = s.x;
-            }
+        case T_SHAPE:
+            // Center block
+            *pivotX = o.pivotSquare->x;
+            *pivotY = o.pivotSquare->y;
+            break;
 
-            if (s.y < minY)
-            {
-                minY = s.y;
-            }
+        case L_SHAPE:
+        case J_SHAPE:
+            // Corner block as pivot
+            *pivotX = o.pivotSquare->x;
+            *pivotY = o.pivotSquare->y;
+            break;
 
-            if (s.y > maxY)
-            {
-                maxY = s.y;
-            }
+        case Z_SHAPE:
+        case S_SHAPE:
+            // Middle block of the middle row
+            *pivotX = o.pivotSquare->x;
+            *pivotY = o.pivotSquare->y;
+            break;
         }
     }
-
-    *x = (minX + maxX) / 2;
-    *y = (minY + maxY) / 2;
 }
+
 
 bool canRotate(object o) {
     for (int i = 0; i < o.size; i++) {
@@ -115,7 +119,7 @@ void rotateObject(object& o, double angleDegrees) {
     // Use the first square as the pivot point (you can change this if needed)
     double pivotX, pivotY;
 
-    findMiddle(o, &pivotX, &pivotY);
+    findPivot(o, &pivotX, &pivotY);
 
     for (int i = 0; i < o.size; i++) {
         double x = o.squares[i].x;
@@ -616,6 +620,7 @@ int main(void)
             {
                 for (int i = 0; i < currenObject.size; i++)
                 {
+                    currenObject.pivotSquare = NULL;
                     currenObject.squares[i].isPlaced = true;
                     int gridX, gridY;
                     findGridPosition(currenObject.squares[i], &gridY, &gridX);
