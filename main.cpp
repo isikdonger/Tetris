@@ -46,12 +46,12 @@ bool isActive(object o)
 {
     for (int i = 0; i < o.size; i++)
     {
-        if (!o.squares[i].isActive)
+        if (o.squares[i].isActive)
         {
-            return false;
+            return true;
         }
     }
-    return true;
+    return false;
 }
 
 void findMiddle(object o, double* x, double* y)
@@ -317,17 +317,19 @@ bool canMove(object o)
     for (int i = 0; i < o.size; i++)
     {
         square cur = o.squares[i];
+
         if (cur.isBottom)
         {
-            if (cur.y <= downBorder + SQUARE_SIDE * MULTIPLIER)
+            int gridX, gridY;
+            findGridPosition(o.squares[i], &gridY, &gridX);
+            canDouble = canDouble && !grid[gridY + 2][gridX];
+
+            if (gridY >= 19)
             {
                 return false;
             }
             else
             {
-                int gridX, gridY;
-                findGridPosition(o.squares[i], &gridY, &gridX);
-                canDouble = !grid[gridY + 2][gridX];
                 if (grid[gridY + 1][gridX])
                 {
                     return false;
@@ -529,6 +531,8 @@ int main(void)
 
         if (currentTime - lastUpdateTime >= updateInterval)
         {
+            canDouble = true;
+
             if (canMove(currenObject))
             {
                 sortSquares(&currenObject);
@@ -598,7 +602,7 @@ int main(void)
                     }
                 }
 
-                if (up)
+                /*if (up)
                 {
                     rotateObject(currenObject, 90.0);
 
@@ -606,7 +610,7 @@ int main(void)
                     {
                         rotateObject(currenObject, -90.0);
                     }
-                }
+                }*/
             }
             else
             {
