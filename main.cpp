@@ -606,7 +606,7 @@ int main(void)
                     }
                 }
 
-                /*if (up)
+                if (up)
                 {
                     rotateObject(currenObject, 90.0);
 
@@ -614,7 +614,7 @@ int main(void)
                     {
                         rotateObject(currenObject, -90.0);
                     }
-                }*/
+                }
             }
             else
             {
