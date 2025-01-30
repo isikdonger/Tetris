@@ -19,6 +19,62 @@ object currenObject;
 
 void findGridPosition(square, int*, int*);
 
+void displayBoard()
+{
+    glColor3f(1, 1, 1);
+
+    double times, per;
+
+    per = SQUARE_SIDE * MULTIPLIER;
+    times = 21 * SQUARE_SIDE * MULTIPLIER;
+
+    for (double i = 0; i < times; i += per)
+    {
+        glLineWidth(2);
+        glBegin(GL_LINES);
+        glVertex2f(leftBorder, upBorder - i);
+        glVertex2f(rightBorder + SQUARE_SIDE * MULTIPLIER, upBorder - i);
+        glEnd();
+    }
+
+    per = SQUARE_SIDE * MULTIPLIER;
+    times = 10 * SQUARE_SIDE * MULTIPLIER;
+
+    for (double i = 0; i < times; i += per)
+    {
+        glLineWidth(2);
+        glBegin(GL_LINES);
+        glVertex2f(leftBorder + i, upBorder);
+        glVertex2f(leftBorder + i, downBorder - SQUARE_SIDE * MULTIPLIER);
+        glEnd();
+    }
+}
+
+void displayObjects()
+{
+
+    for (object& o : objects)
+    {
+        glColor3f(o.r / 255.0, o.g / 255.0, o.b / 255.0);
+
+        for (int i = 0; i < o.size; i++)
+        {
+            square s = o.squares[i];
+
+            if (s.isActive)
+            {
+                glRectf(s.x, s.y - SQUARE_SIDE * MULTIPLIER, s.x + SQUARE_SIDE * MULTIPLIER, s.y);
+            }
+        }
+    }
+}
+
+void display()
+{
+    displayObjects();
+    displayBoard();
+}
+
 void initGrid()
 {
     for (int i = 0; i < 20; i++)
@@ -54,45 +110,14 @@ bool isActive(object o)
     return false;
 }
 
-void findPivot(object o, double* pivotX, double* pivotY) {
+void findPivot(object o, double* pivotX, double* pivotY) 
+{
     if (o.pivotSquare != NULL)
     {
-        switch (o.shape) {
-        case LINE_SHAPE:
-            // Pivot is the second block
-            *pivotX = o.pivotSquare->x;
-            *pivotY = o.pivotSquare->y;
-            break;
-
-        case SQUARE_SHAPE:
-            // Center of the square
-            *pivotX = o.pivotSquare->x;
-            *pivotY = o.pivotSquare->y;
-            break;
-
-        case T_SHAPE:
-            // Center block
-            *pivotX = o.pivotSquare->x;
-            *pivotY = o.pivotSquare->y;
-            break;
-
-        case L_SHAPE:
-        case J_SHAPE:
-            // Corner block as pivot
-            *pivotX = o.pivotSquare->x;
-            *pivotY = o.pivotSquare->y;
-            break;
-
-        case Z_SHAPE:
-        case S_SHAPE:
-            // Middle block of the middle row
-            *pivotX = o.pivotSquare->x;
-            *pivotY = o.pivotSquare->y;
-            break;
-        }
+        *pivotX = o.pivotSquare->x;
+        *pivotY = o.pivotSquare->y;
     }
 }
-
 
 bool canRotate(object o) {
     for (int i = 0; i < o.size; i++) {
@@ -111,7 +136,6 @@ bool canRotate(object o) {
     }
     return true;
 }
-
 
 void rotateObject(object& o, double angleDegrees) {
     double angleRadians = angleDegrees * PI / 180.0; // Convert degrees to radians
@@ -374,62 +398,6 @@ bool canLeft(object o)
         }
     }
     return true;
-}
-
-void displayBoard()
-{
-    glColor3f(1, 1, 1);
-
-    double times, per;
-
-    per = SQUARE_SIDE * MULTIPLIER;
-    times = 21 * SQUARE_SIDE * MULTIPLIER;
-
-    for (double i = 0; i < times; i += per)
-    {
-        glLineWidth(2);
-        glBegin(GL_LINES);
-        glVertex2f(leftBorder, upBorder - i);
-        glVertex2f(rightBorder + SQUARE_SIDE * MULTIPLIER, upBorder - i);
-        glEnd();
-    }
-    
-    per = SQUARE_SIDE * MULTIPLIER;
-    times = 10 * SQUARE_SIDE * MULTIPLIER;
-
-    for (double i = 0; i < times; i += per)
-    {
-        glLineWidth(2);
-        glBegin(GL_LINES);
-        glVertex2f(leftBorder + i, upBorder);
-        glVertex2f(leftBorder + i, downBorder - SQUARE_SIDE * MULTIPLIER);
-        glEnd();
-    }
-}
-
-void displayObjects()
-{
-
-    for (object& o : objects)
-    {
-        glColor3f(o.r / 255.0, o.g / 255.0, o.b / 255.0);
-
-        for (int i = 0; i < o.size; i++)
-        {
-            square s = o.squares[i];
-            
-            if (s.isActive)
-            {
-                glRectf(s.x, s.y - SQUARE_SIDE * MULTIPLIER, s.x + SQUARE_SIDE * MULTIPLIER, s.y);
-            }
-        }
-    }
-}
-
-void display()
-{
-    displayObjects();
-    displayBoard();
 }
 
 void displayGrid()
