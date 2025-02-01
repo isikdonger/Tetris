@@ -17,6 +17,7 @@ bool grid[20][10], up, down, left, right, canDouble;
 list<object> objects;
 object currenObject;
 
+void findGridPosition(double, double, int*, int*);
 void findGridPosition(square, int*, int*);
 
 void displayBoard()
@@ -110,19 +111,36 @@ bool isActive(object o)
     return false;
 }
 
-void findPivot(object o, double* pivotX, double* pivotY) 
+void findPivotPosition(object o, double* pivotX, double* pivotY) 
 {
     if (o.pivotSquare != NULL)
     {
-        *pivotX = o.pivotSquare->x;
-        *pivotY = o.pivotSquare->y;
+        switch (o.shape)
+        {
+            case SQUARE_SHAPE:
+            case LINE_SHAPE:
+                *pivotX = o.pivotSquare->x;
+                *pivotY = o.pivotSquare->y;
+                break;
+            case T_SHAPE:
+            case J_SHAPE:
+            case L_SHAPE:
+            case S_SHAPE:
+            case Z_SHAPE:
+                *pivotX = o.pivotSquare->x + SQUARE_SIDE / 2 * MULTIPLIER;
+                *pivotY = o.pivotSquare->y - SQUARE_SIDE / 2 * MULTIPLIER;
+                break;
+        }
     }
 }
 
-bool canRotate(object o) {
-    for (int i = 0; i < o.size; i++) {
+bool canRotate(double* x, double* y, int size)
+{
+    for (int i = 0; i < size; i++)
+    {
         int gridX, gridY;
-        findGridPosition(o.squares[i], &gridX, &gridY);
+
+        findGridPosition(x[i], y[i], &gridY, &gridX);
 
         // Check boundaries
         if (gridX < 0 || gridX >= 10 || gridY < 0 || gridY >= 20) {
@@ -134,29 +152,52 @@ bool canRotate(object o) {
             return false;
         }
     }
+
     return true;
 }
 
-void rotateObject(object& o, double angleDegrees) {
+void rotateObject(object& o, double angleDegrees)
+{
     double angleRadians = angleDegrees * PI / 180.0; // Convert degrees to radians
-
-    // Use the first square as the pivot point (you can change this if needed)
     double pivotX, pivotY;
 
-    findPivot(o, &pivotX, &pivotY);
+    findPivotPosition(o, &pivotX, &pivotY);
 
-    for (int i = 0; i < o.size; i++) {
+    // Allocate memory for temporary positions
+    double* newX = (double*)malloc(sizeof(double) * o.size);
+    double* newY = (double*)malloc(sizeof(double) * o.size);
+
+    // Check if allocation failed
+    if (!newX || !newY) {
+        printf("Memory allocation failed!\n");
+        free(newX); // Free in case only one failed
+        free(newY);
+        return;
+    }
+
+    for (int i = 0; i < o.size; i++)
+    {
         double x = o.squares[i].x;
         double y = o.squares[i].y;
 
         // Apply rotation formula
-        double newX = pivotX + (x - pivotX) * cos(angleRadians) - (y - pivotY) * sin(angleRadians);
-        double newY = pivotY + (x - pivotX) * sin(angleRadians) + (y - pivotY) * cos(angleRadians);
-
-        // Update square coordinates
-        o.squares[i].x = newX;
-        o.squares[i].y = newY;
+        newX[i] = pivotX + (x - pivotX) * cos(angleRadians) - (y - pivotY) * sin(angleRadians);
+        newY[i] = pivotY + (x - pivotX) * sin(angleRadians) + (y - pivotY) * cos(angleRadians);
+        newX[i] = round(newX[i] / (SQUARE_SIDE * MULTIPLIER)) * (SQUARE_SIDE * MULTIPLIER);
+        newY[i] = round(newY[i] / (SQUARE_SIDE * MULTIPLIER)) * (SQUARE_SIDE * MULTIPLIER);
     }
+
+    if (canRotate(newX, newY, o.size))
+    {
+        for (int i = 0; i < o.size; i++)
+        {
+            o.squares[i].x = newX[i];
+            o.squares[i].y = newY[i];
+        }
+    }
+
+    free(newX);
+    free(newY);
 }
 
 void deleteObjects() {
@@ -172,6 +213,13 @@ void deleteObjects() {
             ++it; // Move to the next element
         }
     }
+}
+
+void findGridPosition(double x, double y, int* gridX, int* gridY)
+{
+    double posY = x - leftBorder, posX = -y + upBorder;
+    *gridX = round(posX / (SQUARE_SIDE * MULTIPLIER));
+    *gridY = round(posY / (SQUARE_SIDE * MULTIPLIER));
 }
 
 void findGridPosition(square s, int* gridX, int* gridY)
@@ -577,11 +625,6 @@ int main(void)
                 if (up)
                 {
                     rotateObject(currenObject, 90.0);
-
-                    if (!canRotate(currenObject))
-                    {
-                        rotateObject(currenObject, -90.0);
-                    }
                 }
             }
             else

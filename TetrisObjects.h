@@ -16,18 +16,16 @@ typedef enum {
     LINE_SHAPE,    // I-Tetromino
     SQUARE_SHAPE,  // O-Tetromino
     T_SHAPE,       // T-Tetromino
-    L_SHAPE,       // L-Tetromino
     J_SHAPE,       // J-Tetromino
-    Z_SHAPE,       // Z-Tetromino
-    S_SHAPE        // S-Tetromino
+    L_SHAPE,       // L-Tetromino
+    S_SHAPE,        // S-Tetromino
+    Z_SHAPE       // Z-Tetromino
 } Shapes;
 
 typedef struct {
     object* parent;
     double x, y;
-    bool isActive;
-    bool isPlaced;
-    bool isBottom;
+    bool isActive, isPlaced, isBottom;
 }square;
 
 struct object {
@@ -49,7 +47,7 @@ object createLineObject(double startX, double startY, int r, int g, int b) {
     o.g = g;
     o.b = b;
     o.shape = LINE_SHAPE;
-    o.pivotSquare = &o.squares[1];
+    o.pivotSquare = &o.squares[2];
     return o;
 }
 
@@ -81,7 +79,7 @@ object createTShapeObject(double startX, double startY, int r, int g, int b) {
     o.g = g;
     o.b = b;
     o.shape = T_SHAPE;
-    o.pivotSquare = &o.squares[1];
+    o.pivotSquare = &o.squares[2];
     return o;
 }
 
@@ -129,7 +127,7 @@ object createSShapeObject(double startX, double startY, int r, int g, int b) {
     o.g = g;
     o.b = b;
     o.shape = S_SHAPE;
-    o.pivotSquare = &o.squares[1];
+    o.pivotSquare = &o.squares[2];
     return o;
 }
 
@@ -145,7 +143,7 @@ object createZShapeObject(double startX, double startY, int r, int g, int b) {
     o.g = g;
     o.b = b;
     o.shape = Z_SHAPE;
-    o.pivotSquare = &o.squares[1];
+    o.pivotSquare = &o.squares[2];
     return o;
 }
 
@@ -158,13 +156,13 @@ object createRandomObject(list<object>& objects, double startX, double startY) {
     object newObject;
 
     switch (randomType) {
-    case 0: newObject = createLineObject(startX, startY, r, g, b); break;
-    case 1: newObject = createSquareObject(startX, startY, r, g, b); break;
-    case 2: newObject = createTShapeObject(startX, startY, r, g, b); break;
-    case 3: newObject = createJShapeObject(startX, startY, r, g, b); break;
-    case 4: newObject = createLShapeObject(startX, startY, r, g, b); break;
-    case 5: newObject = createSShapeObject(startX, startY, r, g, b); break;
-    case 6: newObject = createZShapeObject(startX, startY, r, g, b); break;
+        case 0: newObject = createLineObject(startX, startY, r, g, b); break;
+        case 1: newObject = createSquareObject(startX, startY, r, g, b); break;
+        case 2: newObject = createTShapeObject(startX, startY, r, g, b); break;
+        case 3: newObject = createJShapeObject(startX, startY, r, g, b); break;
+        case 4: newObject = createLShapeObject(startX, startY, r, g, b); break;
+        case 5: newObject = createSShapeObject(startX, startY, r, g, b); break;
+        case 6: newObject = createZShapeObject(startX, startY, r, g, b); break;
     }
 
     objects.push_back(newObject);
